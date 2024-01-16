@@ -6,6 +6,8 @@
 #include "wintoastlib.h"
 #include "strconv.h"
 
+#include <winrt/Windows.Data.Xml.Dom.h>
+
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
@@ -13,6 +15,11 @@
 #include <map>
 #include <memory>
 #include <sstream>
+
+using namespace winrt;
+using namespace Windows::Data::Xml::Dom;
+using namespace Windows::UI::Notifications;
+using namespace notification_rt;
 
 namespace {
 
