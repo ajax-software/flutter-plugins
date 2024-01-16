@@ -136,7 +136,6 @@ class ToastServiceHandler : public IWinToastHandler {
         {flutter::EncodableValue("id"), flutter::EncodableValue(toast_->id())},
     });
   }
-};
 
   ~ToastServiceHandler() {
     std::cout << "~ToastServiceHandler()" << std::endl;
