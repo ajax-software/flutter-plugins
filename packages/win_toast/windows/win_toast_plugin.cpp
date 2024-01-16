@@ -1,27 +1,33 @@
 #include "include/win_toast/win_toast_plugin.h"
 
 // This must be included before many other Windows headers.
-#include <windows.h>
+#include <Windows.h>
+#include <VersionHelpers.h>
+
 
 #include "wintoastlib.h"
 #include "strconv.h"
-
-#include <winrt/Windows.Data.Xml.Dom.h>
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
+#include "DesktopNotificationManagerCompat.h"
+#include <winrt/Windows.Data.Xml.Dom.h>
+#include <iostream>
+#include <utility>
+
 #include <map>
 #include <memory>
 #include <sstream>
+
+
+namespace {
 
 using namespace winrt;
 using namespace Windows::Data::Xml::Dom;
 using namespace Windows::UI::Notifications;
 using namespace notification_rt;
-
-namespace {
 
 inline std::wstring string2wString(const std::string &s) {
   return utf8_to_wide(s);
