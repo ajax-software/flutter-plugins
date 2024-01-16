@@ -25,8 +25,6 @@
 namespace {
 
 using namespace winrt;
-using namespace Windows::Data::Xml::Dom;
-using namespace Windows::UI::Notifications;
 using namespace notification_rt;
 
 inline std::wstring string2wString(const std::string &s) {
@@ -231,7 +229,7 @@ void WinToastPlugin::HandleMethodCall(
       auto group = std::get<std::string>(arguments->at(flutter::EncodableValue("group")));
 
       // Construct the toast template
-      XmlDocument doc;
+      winrt::Windows::Data::Xml::Dom::XmlDocument doc;
       doc.LoadXml(utf8_to_wide(xml));
 
       // Construct the notification
