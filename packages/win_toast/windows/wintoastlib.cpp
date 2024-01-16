@@ -654,7 +654,7 @@ INT64 WinToast::showToast(_In_ const WinToastTemplate& toast, _In_  std::unique_
     HRESULT hr = DllImporter::Wrap_GetActivationFactory(WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &notificationManager);
     if (SUCCEEDED(hr)) {
         ComPtr<IToastNotifier> notifier;
-        hr = notificationManager->CreateToastNotifierWithId(WinToastStringWrapper(_aumi).Get(), &notifier);
+        hr = notificationManager->CreateToastNotifier(&notifier);
         if (SUCCEEDED(hr)) {
             ComPtr<IToastNotificationFactory> notificationFactory;
             hr = DllImporter::Wrap_GetActivationFactory(WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotification).Get(), &notificationFactory);
@@ -748,7 +748,7 @@ ComPtr<IToastNotifier> WinToast::notifier(_In_ bool* succeded) const  {
 	ComPtr<IToastNotifier> notifier;
 	HRESULT hr = DllImporter::Wrap_GetActivationFactory(WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &notificationManager);
 	if (SUCCEEDED(hr)) {
-		hr = notificationManager->CreateToastNotifierWithId(WinToastStringWrapper(_aumi).Get(), &notifier);
+		hr = notificationManager->CreateToastNotifier(&notifier);
 	}
 	*succeded = SUCCEEDED(hr);
 	return notifier;
