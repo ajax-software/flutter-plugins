@@ -35,6 +35,42 @@ using namespace WinToastLib;
 
 class ToastServiceHandler;
 
+class WinToastPlugin : public flutter::Plugin {
+ public:
+  using FlutterMethodChannel = flutter::MethodChannel<flutter::EncodableValue>;
+
+  static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
+
+  WinToastPlugin(std::shared_ptr<FlutterMethodChannel> channel, HWND hwnd);
+
+  ~WinToastPlugin() override;
+
+ private:
+  std::shared_ptr<FlutterMethodChannel> channel_;
+  HWND window_handle_;
+
+  // Called when a method is called on this plugin's channel from Dart.
+  void HandleMethodCall(
+      const flutter::MethodCall<flutter::EncodableValue> &method_call,
+      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+
+  void OnNotificationStatusChanged(flutter::EncodableMap map);
+
+  // void OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason);
+
+  void OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason) {
+  flutter::EncodableMap map = {
+      {flutter::EncodableValue("tag"), flutter::EncodableValue(wide_to_utf8(tag))},
+      {flutter::EncodableValue("group"), flutter::EncodableValue(wide_to_utf8(group))},
+      {flutter::EncodableValue("reason"), flutter::EncodableValue(reason)},
+  };
+  channel_->InvokeMethod(
+      "OnNotificationDismissed",
+      std::make_unique<flutter::EncodableValue>(map)
+  );
+}
+};
+
 class Toast {
 
  public:
@@ -100,18 +136,7 @@ class ToastServiceHandler : public IWinToastHandler {
         {flutter::EncodableValue("id"), flutter::EncodableValue(toast_->id())},
     });
   }
-
-  void WinToastPlugin::OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason) {
-  flutter::EncodableMap map = {
-      {flutter::EncodableValue("tag"), flutter::EncodableValue(wide_to_utf8(tag))},
-      {flutter::EncodableValue("group"), flutter::EncodableValue(wide_to_utf8(group))},
-      {flutter::EncodableValue("reason"), flutter::EncodableValue(reason)},
-  };
-  channel_->InvokeMethod(
-      "OnNotificationDismissed",
-      std::make_unique<flutter::EncodableValue>(map)
-  );
-}
+};
 
   ~ToastServiceHandler() {
     std::cout << "~ToastServiceHandler()" << std::endl;
@@ -140,31 +165,6 @@ int64_t Toast::show(std::unique_ptr<ToastServiceHandler> handler) {
   } catch (...) { \
     result->Error("error", "Unknown error"); \
   }
-
-class WinToastPlugin : public flutter::Plugin {
- public:
-  using FlutterMethodChannel = flutter::MethodChannel<flutter::EncodableValue>;
-
-  static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
-
-  WinToastPlugin(std::shared_ptr<FlutterMethodChannel> channel, HWND hwnd);
-
-  ~WinToastPlugin() override;
-
- private:
-  std::shared_ptr<FlutterMethodChannel> channel_;
-  HWND window_handle_;
-
-  // Called when a method is called on this plugin's channel from Dart.
-  void HandleMethodCall(
-      const flutter::MethodCall<flutter::EncodableValue> &method_call,
-      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
-
-  void OnNotificationStatusChanged(flutter::EncodableMap map);
-
-  void OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason);
-
-};
 
 // static
 void WinToastPlugin::RegisterWithRegistrar(
