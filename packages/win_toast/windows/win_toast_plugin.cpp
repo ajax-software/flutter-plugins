@@ -110,6 +110,14 @@ int64_t Toast::show(std::unique_ptr<ToastServiceHandler> handler) {
   return id_;
 }
 
+#define WIN_TOAST_RESULT_START try {
+#define WIN_TOAST_RESULT_END \
+  } catch (hresult_error const &e) { \
+    result->Error(std::to_string(e.code()), wide_to_utf8(e.message().c_str())); \
+  } catch (...) { \
+    result->Error("error", "Unknown error"); \
+  }
+
 class WinToastPlugin : public flutter::Plugin {
  public:
   using FlutterMethodChannel = flutter::MethodChannel<flutter::EncodableValue>;
