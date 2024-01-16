@@ -174,11 +174,13 @@ void WinToastPlugin::HandleMethodCall(
   }
   if (method_call.method_name().compare("initialize") == 0) {
     auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
-    auto app_name = std::get<std::string>(arguments->at(flutter::EncodableValue("app_name")));
-    auto company_name = std::get<std::string>(arguments->at(flutter::EncodableValue("company_name")));
-    auto product_name = std::get<std::string>(arguments->at(flutter::EncodableValue("product_name")));
-    WinToast::instance()->setAppName(string2wString(app_name));
-    auto aumi = WinToast::configureAUMI(string2wString(company_name), string2wString(product_name));
+    // auto company_name = std::get<std::string>(arguments->at(flutter::EncodableValue("company_name")));
+    // auto product_name = std::get<std::string>(arguments->at(flutter::EncodableValue("product_name")));
+    // auto aumi = WinToast::configureAUMI(string2wString(company_name), string2wString(product_name));
+    
+    auto display_name = std::get<std::string>(arguments->at(flutter::EncodableValue("display_name")));
+    WinToast::instance()->setAppName(string2wString(display_name));
+    auto aumi = std::get<std::string>(arguments->at(flutter::EncodableValue("aumid")));
     WinToast::instance()->setAppUserModelId(aumi);
     bool ret = WinToast::instance()->initialize();
     result->Success(flutter::EncodableValue(ret));

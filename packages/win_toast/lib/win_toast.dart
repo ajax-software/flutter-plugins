@@ -134,23 +134,34 @@ class WinToast {
     }
   }
 
+  /// Initialize the WinToast.
+  ///
+  /// [aumId], [displayName], [iconPath] is config for normal exe application,
+  /// wouldn't have any effect if the application is a UWP application.
+  /// [clsid] is config for UWP application, wouldn't have effect for normal exe application.
+  ///
+  /// [aumId] application user model id.
+  /// [displayName] toast application display name.
+  /// [clsid] notification activator clsid, must be a valid guid string and the
+  ///           same as the one in the manifest file. it's format is like this:
+  ///           '00000000-0000-0000-0000-000000000000'
   Future<bool> initialize({
-    required String appName,
-    required String productName,
-    required String companyName,
+    required String aumId,
+    required String displayName,
+    required String iconPath,
+    required String clsid,
   }) async {
     try {
-      _supportToast = await _channel.invokeMethod("initialize", {
-        'app_name': appName,
-        'product_name': productName,
-        'company_name': companyName,
+      await _channel.invokeMethod("initialize", {
+        'aumid': aumId,
+        'display_name': displayName,
+        'icon_path': iconPath,
+        'clsid': clsid,
       });
+      _supportToast = true;
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('initialize: ${e.toString()}');
       _supportToast = false;
-    }
-    if (!_supportToast) {
-      debugPrint('did not support toast');
     }
     return _supportToast;
   }
