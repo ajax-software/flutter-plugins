@@ -181,7 +181,7 @@ void WinToastPlugin::HandleMethodCall(
     auto display_name = std::get<std::string>(arguments->at(flutter::EncodableValue("display_name")));
     WinToast::instance()->setAppName(string2wString(display_name));
     auto aumi = std::get<std::string>(arguments->at(flutter::EncodableValue("aumid")));
-    WinToast::instance()->setAppUserModelId(aumi);
+    WinToast::instance()->setAppUserModelId(string2wString(aumi));
     bool ret = WinToast::instance()->initialize();
     result->Success(flutter::EncodableValue(ret));
   } else if (method_call.method_name().compare("showToast") == 0) {
