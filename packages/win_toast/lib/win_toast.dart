@@ -6,6 +6,8 @@ import 'package:win_toast/src/templates.dart';
 import 'package:win_toast/src/toast_type.dart';
 
 export 'src/toast_type.dart';
+export 'src/templates.dart';
+
 
 enum DismissReason {
   userCanceld,
