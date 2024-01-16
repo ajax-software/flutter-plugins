@@ -202,7 +202,43 @@ void WinToastPlugin::HandleMethodCall(
         std::bind(&WinToastPlugin::OnNotificationStatusChanged, this, std::placeholders::_1));
     auto id = toast->show(std::move(handler));
     result->Success(flutter::EncodableValue(id));
-  } else if (method_call.method_name().compare("dismiss") == 0) {
+  }else if (method_call.method_name() == "showCustomToast") {
+    WIN_TOAST_RESULT_START
+      auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+      auto xml = std::get<std::string>(arguments->at(flutter::EncodableValue("xml")));
+      auto tag = std::get<std::string>(arguments->at(flutter::EncodableValue("tag")));
+      auto group = std::get<std::string>(arguments->at(flutter::EncodableValue("group")));
+
+      // Construct the toast template
+      XmlDocument doc;
+      doc.LoadXml(utf8_to_wide(xml));
+
+      // Construct the notification
+      ToastNotification notification{doc};
+
+      if (!tag.empty()) {
+        notification.Tag(utf8_to_wide(tag));
+      }
+      if (!group.empty()) {
+        notification.Group(utf8_to_wide(group));
+      }
+
+      notification.Dismissed([this](const ToastNotification &sender, const ToastDismissedEventArgs &args) {
+        OnNotificationDismissed(
+            sender.Tag().c_str(),
+            sender.Group().c_str(),
+            static_cast<int>(args.Reason())
+        );
+      });
+
+      notification.Activated([this](const ToastNotification &sender, Windows::Foundation::IInspectable args) {
+
+      });
+
+      DesktopNotificationManagerCompat::CreateToastNotifier().Show(notification);
+      result->Success();
+    WIN_TOAST_RESULT_END
+  }  else if (method_call.method_name().compare("dismiss") == 0) {
     auto id = std::get_if<int64_t>(method_call.arguments());
     WinToast::instance()->hideToast(*id);
     result->Success();

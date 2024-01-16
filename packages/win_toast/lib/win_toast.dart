@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:win_toast/src/templates.dart';
 import 'package:win_toast/src/toast_type.dart';
 
 export 'src/toast_type.dart';
@@ -10,37 +11,6 @@ enum DismissReason {
   userCanceld,
   applicationHidden,
   timeout,
-}
-
-class Toast {
-  Toast(this.id, this._client) {
-    final stream = _client._activatedStream.stream;
-    _subscription = stream.listen((event) {
-      if (event._id != id) {
-        return;
-      }
-      debugPrint('event: $event');
-      if (event is _EndEvent) {
-        _eventController.close();
-        return;
-      }
-      _eventController.add(event);
-      _subscription?.cancel();
-    });
-  }
-
-  final int id;
-  final WinToast _client;
-
-  Stream<Event> get eventStream => _eventController.stream;
-
-  final _eventController = StreamController<Event>.broadcast();
-
-  StreamSubscription? _subscription;
-
-  void dismiss() {
-    _client._dismiss(id);
-  }
 }
 
 class Event {
@@ -167,30 +137,41 @@ class WinToast {
   }
 
   /// return notification id. -1 meaning failed to show.
-  Future<Toast?> showToast({
-    required ToastType type,
-    required String title,
-    String subtitle = '',
-    String imagePath = '',
-    List<String> actions = const <String>[],
+  Future<void> showToast({
+    required Toast toast,
+    String? tag,
+    String? group,
+  }) {
+    return showCustomToast(
+      xml: toast.toXmlString(),
+      tag: tag,
+      group: group,
+    );
+  }
+
+    /// Show a toast notification.
+  /// [xml] is the raw XML content of win toast. schema can be found here:
+  ///       https://learn.microsoft.com/en-us/uwp/schemas/tiles/toastschema/schema-root
+  ///
+  /// [tag] notification tag, you can use this to remove the notification.
+  ///
+  /// [group] notification group, you can use this to remove the notification.
+  ///         Maybe this string needs to be max 16 characters to work on Windows
+  ///         10 prior to applying Creators Update (build 15063).
+  ///         see here: https://chromium.googlesource.com/chromium/src/+/1f65ad79494a05653e7478202e221ec229d9ed01/chrome/browser/notifications/notification_platform_bridge_win.cc#56
+  Future<void> showCustomToast({
+    required String xml,
+    String? tag,
+    String? group,
   }) async {
     if (!_supportToast) {
-      return null;
+      return;
     }
-    assert(title.isNotEmpty);
-    assert(type.textFiledCount() > 1 || subtitle.isEmpty);
-    final id = await _channel.invokeMethod('showToast', {
-      'type': type.index,
-      'title': title,
-      'subtitle': subtitle,
-      'imagePath': imagePath,
-      'actions': actions,
+    await _channel.invokeMethod<int>("showCustomToast", {
+      'xml': xml,
+      'tag': tag ?? '',
+      'group': group ?? '',
     });
-    debugPrint('id: $id');
-    if (id == -1 || id == null) {
-      return null;
-    }
-    return Toast(id, this);
   }
 
   Future<void> clear() {
