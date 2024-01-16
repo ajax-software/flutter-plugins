@@ -233,7 +233,7 @@ void WinToastPlugin::HandleMethodCall(
       doc.LoadXml(utf8_to_wide(xml));
 
       // Construct the notification
-      ABI::Windows::UI::Notifications::ToastNotification notification{doc};
+      winrt::Windows::UI::Notifications::ToastNotification notification{doc};
 
       if (!tag.empty()) {
         notification.Tag(utf8_to_wide(tag));
@@ -242,7 +242,7 @@ void WinToastPlugin::HandleMethodCall(
         notification.Group(utf8_to_wide(group));
       }
 
-      notification.Dismissed([this](const ABI::Windows::UI::Notifications::ToastNotification &sender, const ABI::Windows::UI::Notifications::ToastDismissedEventArgs &args) {
+      notification.Dismissed([this](const winrt::Windows::UI::Notifications::ToastNotification &sender, const winrt::Windows::UI::Notifications::ToastDismissedEventArgs &args) {
         OnNotificationDismissed(
             sender.Tag().c_str(),
             sender.Group().c_str(),
@@ -250,7 +250,7 @@ void WinToastPlugin::HandleMethodCall(
         );
       });
 
-      notification.Activated([this](const ABI::Windows::UI::Notifications::ToastNotification &sender, Windows::Foundation::IInspectable args) {
+      notification.Activated([this](const winrt::Windows::UI::Notifications::ToastNotification &sender, Windows::Foundation::IInspectable args) {
 
       });
 
