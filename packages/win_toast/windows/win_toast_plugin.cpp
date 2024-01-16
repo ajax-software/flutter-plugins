@@ -101,6 +101,18 @@ class ToastServiceHandler : public IWinToastHandler {
     });
   }
 
+  void WinToastPlugin::OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason) {
+  flutter::EncodableMap map = {
+      {flutter::EncodableValue("tag"), flutter::EncodableValue(wide_to_utf8(tag))},
+      {flutter::EncodableValue("group"), flutter::EncodableValue(wide_to_utf8(group))},
+      {flutter::EncodableValue("reason"), flutter::EncodableValue(reason)},
+  };
+  channel_->InvokeMethod(
+      "OnNotificationDismissed",
+      std::make_unique<flutter::EncodableValue>(map)
+  );
+}
+
   ~ToastServiceHandler() {
     std::cout << "~ToastServiceHandler()" << std::endl;
     handle_callback_(
@@ -149,6 +161,9 @@ class WinToastPlugin : public flutter::Plugin {
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
   void OnNotificationStatusChanged(flutter::EncodableMap map);
+
+  void OnNotificationDismissed(const std::wstring &tag, const std::wstring &group, int reason);
+
 };
 
 // static
@@ -250,7 +265,7 @@ void WinToastPlugin::HandleMethodCall(
         );
       });
 
-      notification.Activated([this](const winrt::Windows::UI::Notifications::ToastNotification &sender, Windows::Foundation::IInspectable args) {
+      notification.Activated([this](const winrt::Windows::UI::Notifications::ToastNotification &sender, winrt::Windows::Foundation::IInspectable args) {
 
       });
 
